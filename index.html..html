@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiVerse: Pop Culture English</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f12;
+            --bg-card: #1a1a1f;
+            --accent: #ff4757;
+            --text-main: #f1f2f6;
+            --text-muted: #a4b0be;
+            --border: #2f3542;
+            --success: #2ed573;
+            --warning: #ffa502;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Pet Area */
+        .pet-container {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .pet-image-placeholder {
+            width: 150px;
+            height: 150px;
+            background-color: #2d3436;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            transition: transform 0.3s;
+        }
+
+        .pet-image-placeholder.bounce {
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .pet-status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+        }
+
+        .pet-stat {
+            text-align: center;
+        }
+
+        .pet-stat-label {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            margin-bottom: 4px;
+        }
+
+        .bar-bg {
+            width: 100px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .bar-fill.happy { background: var(--success); }
+        .bar-fill.energy { background: var(--warning); }
+
+        /* Cards & Lists */
+        .card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .vocab-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vocab-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Buttons & Inputs */
+        button.primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button.primary:hover { opacity: 0.9; }
+
+        button.secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.secondary:hover {
+            border-color: var(--accent);
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background: #2d3436;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+
+        /* Shop Grid */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .shop-item {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .shop-item.owned {
+            opacity: 0.6;
+        }
+
+        .shop-item .emoji { font-size: 2rem; }
+
+        .shop-price {
+            color: var(--accent);
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        /* Flashcard */
+        .flashcard {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .flashcard:hover {
+            border-color: var(--accent);
+        }
+
+        .flashcard-word {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .flashcard-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .flashcard-answer {
+            font-size: 1.3rem;
+            color: var(--success);
+            margin-top: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .exercise-options {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 213, 115, 0.2);
+            border-color: var(--success);
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 71, 87, 0.2);
+            border-color: var(--accent);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border-left: 4px solid var(--success);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.3s;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error { border-left-color: var(--accent); }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+                gap: 8px;
+            }
+            .logo { display: none; }
+            .nav-btn { white-space: nowrap; padding: 8px 12px; font-size: 0.85rem; }
+            .main-content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">LexiVerse</div>
+        <button class="nav-btn active" data-section="dashboard">🏠 Dashboard</button>
+        <button class="nav-btn" data-section="learn">📚 Learn</button>
+        <button class="nav-btn" data-section="flashcards">🃏 Flashcards</button>
+        <button class="nav-btn" data-section="vocabulary">📖 My Vocabulary</button>
+        <button class="nav-btn" data-section="shop">🛒 Pet Shop</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard -->
+        <section id="dashboard" class="section active">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-words">0</div>
+                    <div class="stat-label">Words Learned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-streak">1</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-coins">50</div>
+                    <div class="stat-label">Coins 🪙</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+
+            <div class="pet-container">
+                <div class="pet-image-placeholder" id="pet-emoji">🦊</div>
+                <h3 id="pet-name">Your Pet: Fox</h3>
+                <div class="pet-status-bar">
+                    <div class="pet-stat">
+                        <div class="pet-stat-label">Mood</div>
+                        <div class="bar-bg"><div class="bar-fill happy" id="pet-mood" style="width: 80%"></div></div>
+                    </div>
+                    <div class="pet-stat">
+                        <div class="pet-stat-label">Energy</div>
+                        <div class="bar-bg"><div class="bar-fill energy" id="pet-energy" style="width: 60%"></div></div>
+                    </div>
+                </div>
+                <button class="primary" onclick="feedPet()">Feed Pet 🍖</button>
+            </div>
+
+            <div class="card">
+                <h3>Today's Challenge</h3>
+                <p style="color: var(--text-muted);">Learn 3 new pop culture words to earn bonus coins!</p>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="daily-progress" style="width: 0%"></div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;" id="daily-text">0/3 completed</p>
+            </div>
+        </section>
+
+        <!-- Learn -->
+        <section id="learn" class="section">
+            <h2>Learn Pop Culture English</h2>
+            <div id="learn-card" class="card">
+                <div class="flashcard" id="learn-flashcard" onclick="revealLearnAnswer()">
+                    <div class="flashcard-word" id="learn-word">Loading...</div>
+                    <div class="flashcard-hint" id="learn-hint">Click to reveal meaning</div>
+                    <div id="learn-answer" style="display:none;"></div>
+                </div>
+                <div class="exercise-options" id="learn-options"></div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="secondary" onclick="nextWord()">Next Word →</button>
+                    <button class="secondary" onclick="speakWord()">🔊 Pronounce</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flashcards -->
+        <section id="flashcards" class="section">
+            <h2>Flashcards</h2>
+            <p style="color: var(--text-muted);">Click the card to flip it!</p>
+            <div class="flashcard" id="fc-card" onclick="flipFlashcard()">
+                <div class="flashcard-word" id="fc-word">Loading...</div>
+                <div class="flashcard-hint" id="fc-hint">Click to flip</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="primary" onclick="markFlashcard(true)">✓ I Know It</button>
+                <button class="secondary" onclick="markFlashcard(false)">✗ Need Practice</button>
+            </div>
+            <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.85rem;" id="fc-counter">Card 1 of 10</p>
+        </section>
+
+        <!-- Vocabulary -->
+        <section id="vocabulary" class="section">
+            <h2>My Vocabulary</h2>
+            <div id="vocab-list"></div>
+        </section>
+
+        <!-- Shop -->
+        <section id="shop" class="section">
+            <h2>Pet Shop</h2>
+            <p style="color: var(--text-muted);">Buy cosmetics for your pet with coins!</p>
+            <div class="shop-grid" id="shop-grid"></div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // === Data ===
+        const wordBank = [
+            { word: "Binge-watch", meaning: "To watch many episodes of a TV show in one sitting", hint: "Netflix marathon...", category: "TV" },
+            { word: "Vibing", meaning: "Relaxing and enjoying the atmosphere", hint: "Good energy...", category: "Slang" },
+            { word: "Main character", meaning: "Someone who acts like the protagonist of their own story", hint: "You're the star...", category: "Slang" },
+            { word: "Stan", meaning: "To be a very devoted fan of someone", hint: "Superfan...", category: "Music" },
+            { word: "Spill the tea", meaning: "To share gossip or the latest news", hint: "Tell me the gossip...", category: "Slang" },
+            { word: "FOMO", meaning: "Fear Of Missing Out", hint: "Anxiety about missing fun events", category: "Acronym" },
+            { word: "Cancel culture", meaning: "Publicly boycotting someone for problematic behavior", hint: "Social media backlash...", category: "Culture" },
+            { word: "Baddie", meaning: "A confident, attractive person", hint: "Slay queen...", category: "Slang" },
+            { word: "Ghosting", meaning: "Suddenly cutting off communication with someone", hint: "Disappearing act...", category: "Dating" },
+            { word: "Flex", meaning: "To show off something you're proud of", hint: "Humble brag...", category: "Slang" },
+            { word: "Meme", meaning: "A humorous image or phrase spread on the internet", hint: "Viral content...", category: "Internet" },
+            { word: "Influencer", meaning: "A person who affects purchasing decisions via social media", hint: "Instagram star...", category: "Social Media" }
+        ];
+
+        const petShop = [
+            { id: "hat", name: "Top Hat", emoji: "🎩", price: 30 },
+            { id: "crown", name: "Crown", emoji: "👑", price: 100 },
+            { id: "glasses", name: "Cool Shades", emoji: "😎", price: 50 },
+            { id: "bow", name: "Bow Tie", emoji: "🎀", price: 40 },
+            { id: "star", name: "Gold Star", emoji: "⭐", price: 60 },
+            { id: "fire", name: "Fire Aura", emoji: "🔥", price: 150 }
+        ];
+
+        // === State ===
+        let state = {
+            wordsLearned: 0,
+            streak: 1,
+            coins: 50,
+            correct: 0,
+            total: 0,
+            petMood: 80,
+            petEnergy: 60,
+            ownedItems: [],
+            learnedWords: [],
+            currentLearnIndex: 0,
+            currentFcIndex: 0,
+            fcFlipped: false,
+            dailyLearned: 0
+        };
+
+        // Load from localStorage
+        try {
+            const saved = localStorage.getItem('lexiverse_state');
+            if (saved) state = { ...state, ...JSON.parse(saved) };
+        } catch(e) {}
+
+        function saveState() {
+            try { localStorage.setItem('lexiverse_state', JSON.stringify(state)); } catch(e) {}
+        }
+
+        // === Utilities ===
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function updateUI() {
+            document.getElementById('stat-words').textContent = state.wordsLearned;
+            document.getElementById('stat-streak').textContent = state.streak;
+            document.getElementById('stat-coins').textContent = state.coins;
+            const acc = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
+            document.getElementById('stat-accuracy').textContent = acc + '%';
+            document.getElementById('pet-mood').style.width = state.petMood + '%';
+            document.getElementById('pet-energy').style.width = state.petEnergy + '%';
+            const dailyPct = Math.min((state.dailyLearned / 3) * 100, 100);
+            document.getElementById('daily-progress').style.width = dailyPct + '%';
+            document.getElementById('daily-text').textContent = state.dailyLearned + '/3 completed';
+            saveState();
+        }
+
+        // === Navigation ===
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.section).classList.add('active');
+                if (btn.dataset.section === 'vocabulary') renderVocab();
+                if (btn.dataset.section === 'shop') renderShop();
+            });
+        });
+
+        // === Learn ===
+        let learnRevealed = false;
+
+        function loadLearnWord() {
+            const w = wordBank[state.currentLearnIndex % wordBank.length];
+            learnRevealed = false;
+            document.getElementById('learn-word').textContent = w.word;
+            document.getElementById('learn-hint').textContent = 'Click to reveal meaning';
+            document.getElementById('learn-hint').style.display = 'block';
+            const ansEl = document.getElementById('learn-answer');
+            ansEl.style.display = 'none';
+            ansEl.textContent = w.meaning;
+
+            // Generate options
+            const opts = document.getElementById('learn-options');
+            opts.innerHTML = '';
+            const correct = w.meaning;
+            const pool = wordBank.filter(x => x.meaning !== correct).map(x => x.meaning);
+            const wrong1 = pool[Math.floor(Math.random() * pool.length)];
+            let wrong2;
+            do { wrong2 = pool[Math.floor(Math.random() * pool.length)]; } while (wrong2 === wrong1);
+            const choices = [correct, wrong1, wrong2].sort(() => Math.random() - 0.5);
+            choices.forEach(c => {
+                const b = document.createElement('button');
+                b.className = 'option-btn';
+                b.textContent = c;
+                b.onclick = () => checkLearnAnswer(b, c === correct);
+                opts.appendChild(b);
+            });
+        }
+
+        function revealLearnAnswer() {
+            if (learnRevealed) return;
+            learnRevealed = true;
+            document.getElementById('learn-hint').style.display = 'none';
+            document.getElementById('learn-answer').style.display = 'block';
+        }
+
+        function checkLearnAnswer(btn, isCorrect) {
+            if (btn.disabled) return;
+            document.querySelectorAll('#learn-options .option-btn').forEach(b => b.disabled = true);
+            state.total++;
+            if (isCorrect) {
+                btn.classList.add('correct');
+                state.correct++;
+                state.coins += 5;
+                state.petMood = Math.min(100, state.petMood + 5);
+                state.petEnergy = Math.max(0, state.petEnergy - 5);
+                const w = wordBank[state.currentLearnIndex % wordBank.length];
+                if (!state.learnedWords.find(x => x.word === w.word)) {
+                    state.learnedWords.push(w);
+                    state.wordsLearned++;
+                    if (state.dailyLearned < 3) state.dailyLearned++;
+                }
+                showToast('Correct! +5 coins 🪙');
+                document.getElementById('pet-emoji').classList.add('bounce');
+                setTimeout(() => document.getElementById('pet-emoji').classList.remove('bounce'), 600);
+            } else {
+                btn.classList.add('wrong');
+                document.querySelectorAll('#learn-options .option-btn').forEach(b => {
+                    if (b.textContent === wordBank[state.currentLearnIndex % wordBank.length].meaning) {
+                        b.classList.add('correct');
+                    }
+                });
+                showToast('Not quite! Keep learning 💪', true);
+            }
+            updateUI();
+        }
+
+        function nextWord() {
+            state.currentLearnIndex++;
+            loadLearnWord();
+        }
+
+        function speakWord() {
+            const w = wordBank[state.currentLearnIndex % wordBank.length];
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance(w.word);
+                u.lang = 'en-US';
+                speechSynthesis.speak(u);
+            }
+        }
+
+        // === Flashcards ===
+        function loadFlashcard() {
+            const w = wordBank[state.currentFcIndex % wordBank.length];
+            state.fcFlipped = false;
+            document.getElementById('fc-word').textContent = w.word;
+            document.getElementById('fc-hint').textContent = 'Click to flip';
+            document.getElementById('fc-hint').style.display = 'block';
+            document.getElementById('fc-counter').textContent = `Card ${state.currentFcIndex + 1} of ${wordBank.length}`;
+        }
+
+        function flipFlashcard() {
+            const w = wordBank[state.currentFcIndex % wordBank.length];
+            state.fcFlipped = !state.fcFlipped;
+            if (state.fcFlipped) {
+                document.getElementById('fc-word').textContent = w.meaning;
+                document.getElementById('fc-hint').style.display = 'none';
+            } else {
+                document.getElementById('fc-word').textContent = w.word;
+                document.getElementById('fc-hint').style.display = 'block';
+            }
+        }
+
+        function markFlashcard(known) {
+            if (known) {
+                state.coins += 2;
+                showToast('Great! +2 coins 🪙');
+                const w = wordBank[state.currentFcIndex % wordBank.length];
+                if (!state.learnedWords.find(x => x.word === w.word)) {
+                    state.learnedWords.push(w);
+                    state.wordsLearned++;
+                }
+            } else {
+                showToast('Keep practicing! 📖');
+            }
+            state.currentFcIndex++;
+            updateUI();
+            loadFlashcard();
+        }
+
+        // === Vocabulary ===
+        function renderVocab() {
+            const list = document.getElementById('vocab-list');
+            if (state.learnedWords.length === 0) {
+                list.innerHTML = '<div class="card"><p style="color: var(--text-muted);">No words yet. Start learning in the Learn section!</p></div>';
+                return;
+            }
+            list.innerHTML = state.learnedWords.map(w => `
+                <div class="card">
+                    <div class="vocab-row">
+                        <div>
+                            <strong style="color: var(--accent);">${w.word}</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 10px;">${w.category}</span>
+                        </div>
+                    </div>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">${w.meaning}</p>
+                </div>
+            `).join('');
+        }
+
+        // === Shop ===
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = petShop.map(item => {
+                const owned = state.ownedItems.includes(item.id);
+                return `
+                    <div class="shop-item ${owned ? 'owned' : ''}">
+                        <div class="emoji">${item.emoji}</div>
+                        <div style="font-size: 0.9rem; margin: 5px 0;">${item.name}</div>
+                        <div class="shop-price">${item.price} 🪙</div>
+                        <button class="${owned ? 'secondary' : 'primary'}" style="width: 100%; padding: 6px; font-size: 0.8rem;"
+                            onclick="buyItem('${item.id}', ${item.price})" ${owned ? 'disabled' : ''}>
+                            ${owned ? 'Owned' : 'Buy'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buyItem(id, price) {
+            if (state.ownedItems.includes(id)) return;
+            if (state.coins < price) {
+                showToast('Not enough coins!', true);
+                return;
+            }
+            state.coins -= price;
+            state.ownedItems.push(id);
+            showToast('Item purchased! 🎉');
+            updateUI();
+            renderShop();
+        }
+
+        // === Pet ===
+        function feedPet() {
+            if (state.coins < 5) {
+                showToast('Not enough coins!', true);
+                return;
+            }
+            state.coins -= 5;
+            state.petMood = Math.min(100, state.petMood + 10);
+            state.petEnergy = Math.min(100, state.petEnergy + 15);
+            showToast('Your pet is happy! 🦊');
+            document.getElementById('pet-emoji').classList.add('bounce');
+            setTimeout(() => document.getElementById('pet-emoji').classList.remove('bounce'), 600);
+            updateUI();
+        }
+
+        // === Init ===
+        updateUI();
+        loadLearnWord();
+        loadFlashcard();
+    </script>
+</body>
+</html>
